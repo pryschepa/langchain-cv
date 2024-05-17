@@ -57,18 +57,21 @@ def pdfloader(obj):
     print('started pdfloader')
     print(obj)
     if obj['type']=='pdf':
-        loader = PyPDFLoader(obj['fileUrl'])
+        #loader = PyPDFLoader(obj['fileUrl'])
+        loader = PyPDFLoader('../OleksandrZima_CV.docx.pdf')
     elif obj['type']=='docx':
         loader = Docx2txtLoader(obj['fileUrl'])
     pages = loader.load()
+    print(pages)
     print('end pdfloader')
-    return { "context":pages[0], 'vacancy':obj['vacancyText'], 'fileUrl':obj['fileUrl'], "type":obj['type'] }
-
+    return { "context":combine_page_contents(pages), 'vacancy':obj['vacancyText'], 'fileUrl':obj['fileUrl'], "type":obj['type'] }
 add_routes(
     app,
     pdfloader | prompt | model | parser,
     path="/openai",
 )
+def combine_page_contents(pages):
+    return " ".join(page.page_content for page in pages)
 
 if __name__ == "__main__":
     import uvicorn
